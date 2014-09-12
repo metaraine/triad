@@ -1,5 +1,5 @@
 (function() {
-  angular.module("triad").controller("TriadAppCtrl", function($scope) {
+  angular.module("triad").controller("TriadAppCtrl", function($scope, PIXI) {
     var bunny, texture;
     $scope.stage = new PIXI.Stage(0x66ff99);
     $scope.pixiRender = function(stage, renderer) {

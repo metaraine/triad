@@ -1,5 +1,6 @@
 angular.module("triad")
-.controller "TriadAppCtrl", ($scope) ->
+
+.controller "TriadAppCtrl", ($scope, PIXI) ->
 
 	# $scope.pixiRender = ()->
 	# 	console.log 'render!'

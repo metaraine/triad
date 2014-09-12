@@ -1,10 +1,6 @@
 (function() {
-  var pixiRender;
-
-  angular.module("triad", []);
-
-  pixiRender = function() {
-    return console.log('pixiRender');
-  };
+  angular.module('triad', []).factory('PIXI', function() {
+    return PIXI;
+  });
 
 }).call(this);

@@ -1,4 +1,6 @@
-angular.module("triad").directive "pixi", ($parse)->
+angular.module("triad")
+
+.directive "pixi", ($parse)->
 
 	# template: '<canvas></canvas>',
 	restrict: "A"
