@@ -5,47 +5,36 @@
       restrict: "A",
       scope: false,
       controller: postLink = function($scope, $element, $attrs) {
-        var antialias, e, render, renderFunc, renderLoop, renderer, rendererType, self, stage, stageAttr, transparent;
+        var antialias, render, renderFunc, renderLoop, renderer, rendererType, self, stage, stageAttr, transparent;
+        self = this;
         renderLoop = function() {
           self.render();
           return requestAnimFrame(renderLoop);
         };
-        self = this;
         stageAttr = $parse($attrs.pixi);
         stage = stageAttr($scope);
         renderFunc = $scope.$eval($attrs.pixiRender);
         if (!stage) {
+          console.log('new stage');
           stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground || "0"));
           stageAttr.assign($scope, stage);
         }
         antialias = $scope.$eval($attrs.pixiAntialias || "false");
         transparent = $scope.$eval($attrs.pixiTransparent || "false");
         rendererType = $scope.$eval($attrs.pixiRenderer || "auto");
-        renderer = void 0;
         switch (rendererType) {
           case "canvas":
-            renderer = new PIXI.CanvasRenderer($element.width(), $element.height(), $element[0], transparent);
+            renderer = new PIXI.CanvasRenderer($element[0].width, $element[0].height, $element[0], transparent);
             break;
           case "webgl":
-            try {
-              renderer = new PIXI.WebGLRenderer($element.width(), $element.height(), $element[0], transparent, antialias);
-            } catch (_error) {
-              e = _error;
-              $scope.$emit("pixi.webgl.init.exception", e);
-            }
+            renderer = new PIXI.WebGLRenderer($element[0].width, $element[0].height, $element[0], transparent, antialias);
             break;
           default:
-            renderer = PIXI.autoDetectRenderer($element.width(), $element.height(), $element[0], antialias, transparent);
+            renderer = PIXI.autoDetectRenderer($element[0].width, $element[0].height, $element[0], antialias, transparent);
         }
         this.render = render = function(force) {
-          var doRender;
-          doRender = true;
-          if (renderFunc) {
-            doRender = renderFunc(stage, renderer);
-          }
-          if (force || doRender !== false) {
-            return renderer.render(stage);
-          }
+          renderFunc(stage, renderer);
+          return renderer.render(stage);
         };
         requestAnimFrame(renderLoop);
         this.getStage = function() {

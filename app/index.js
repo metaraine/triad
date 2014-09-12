@@ -7,8 +7,6 @@
 
   indexController = require('./controllers/index.js');
 
-  require('newrelic');
-
   app = express();
 
   app.set('view engine', 'jade');

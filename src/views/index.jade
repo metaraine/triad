@@ -1,7 +1,11 @@
 extends layout
 
 block content
-	h1 Hello Cloudy Day
+	div(ng-app='triad' ng-controller='TriadAppCtrl as app')
+		h1 Hello Cloudy Day
+		canvas(pixi='stage' pixi-render='pixiRender' pixi-transparent='true' pixi-renderer='"webgl"')
 
 block scripts
 	script(src='/scripts/main.js')
+	script(src='/scripts/directives/pixi.js')
+	script(src='/scripts/controllers/TriadAppCtrl.js')
