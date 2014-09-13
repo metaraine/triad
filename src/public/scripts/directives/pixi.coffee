@@ -1,11 +1,11 @@
 angular.module("triad")
 
-.directive "pixi", ['$parse', ($parse)->
+.directive "pixi", ($parse)->
 
 	# template: '<canvas></canvas>',
 	restrict: "A"
 	scope: false
-	controller: postLink = ['$scope', '$element', '$attrs', '$window', '$timeout', 'PIXI', ($scope, $element, $attrs, $window, $timeout, PIXI)->
+	controller: ($scope, $element, $attrs, $window, $timeout, PIXI)->
 		self = this
 		renderer = null
 
@@ -64,5 +64,3 @@ angular.module("triad")
 		w.bind 'resize', @resize
 
 		$timeout @start.bind(@)
-	]
-]
