@@ -124,11 +124,9 @@ gulp.task 'clean', ->
 
 # site launcher
 gulp.task 'open', ->
-	return
-	# gulp.src(config.startpage)
-	# 	.pipe open(config.startpage,
-	# 	url: 'http://localhost:' + config.http_port
-	# )
+	gulp.src('app/index.js') # dummy source, but must match a real file to run
+		.pipe open '',
+			url: 'http://localhost:' + config.http_port
 
 
 # default task -- run 'gulp' from cli
