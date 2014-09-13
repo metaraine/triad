@@ -1,7 +1,7 @@
 angular.module('triad')
 
 # controls the main application
-.controller 'TriadAppCtrl', ($scope, PIXI, TrianglePerson, $timeout) ->
+.controller 'TriadAppCtrl', ['$scope', 'PIXI', 'TrianglePerson', '$timeout', ($scope, PIXI, TrianglePerson, $timeout) ->
 
 	# render function called in the animation loop
 	$scope.pixiRender = (stage, renderer)->
@@ -31,3 +31,4 @@ angular.module('triad')
 			person.vy = Math.random()*$scope.config.velocity - $scope.config.velocity/2
 			$scope.stage.addChild person
 			person
+]

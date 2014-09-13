@@ -2,7 +2,7 @@
 
 angular.module("triad")
 
-.directive "resize", ($window)->
+.directive "resize", ['$window', ($window)->
 	(scope, element, attr)->
 
 		# returns an object with the parent element's width and height
@@ -19,3 +19,4 @@ angular.module("triad")
 		w = angular.element($window)
 		w.bind "resize", ->
 			scope.$apply()
+]
