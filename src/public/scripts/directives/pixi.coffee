@@ -5,7 +5,7 @@ angular.module("triad")
 	# template: '<canvas></canvas>',
 	restrict: "A"
 	scope: false
-	controller: postLink = ($scope, $element, $attrs, $window, $timeout)->
+	controller: postLink = ($scope, $element, $attrs, $window, $timeout, PIXI)->
 		self = this
 		renderer = null
 

@@ -16,6 +16,7 @@ cache =        require('gulp-cache')
 open =         require('gulp-open')
 livereload =   require('gulp-livereload')
 embedlr =      require('gulp-embedlr')
+filter =       require('gulp-filter')
 # ecstatic =     require('ecstatic')
 lr =           require('tiny-lr')
 
@@ -23,7 +24,6 @@ server = lr()
 
 config =
 	http_port: 4388
-	dest_app: './app'
 	livereload_port: '35729'
 
 	# markup
@@ -35,8 +35,12 @@ config =
 	dest_css: 'app/public/styles'
 
 	# scripts
-	src_coffee: 'src/**/*.coffee'
+	src_all_scripts: 'src/**/*.coffee'
+	src_client_scripts: 'src/public/**/*.coffee'
+	src_client_exclude: '!public/**/*.coffee'
+	dest_client_scripts: 'app/public/scripts'
 	js_concat_target: 'main.js'
+	dest_server_scripts: 'app'
 
 	# plugins
 	# src_plugins: 'src/assets/scripts/plugins/*.js'
@@ -60,18 +64,25 @@ gulp.task 'styles', ->
 		.pipe livereload(server)
 
 
-# compile server-side js, concat, & minify js
-gulp.task 'scripts', ->
-	# ".jshintrc"
-	gulp.src(config.src_coffee)
+# compile client-side coffeescript, concat, & minify js
+gulp.task 'client_scripts', ->
+	gulp.src(config.src_client_scripts)
+		.pipe(coffee().on('error', gutil.log))
+		.pipe(concat(config.js_concat_target))
+		.pipe(gulp.dest(config.dest_client_scripts))
+		.pipe(rename(suffix: '.min'))
+		.pipe(uglify())
+		.pipe(gulp.dest(config.dest_client_scripts))
+		.pipe livereload(server)
+
+# compile server-side coffeescript
+gulp.task 'server_scripts', ->
+	gulp.src(config.src_all_scripts)
+		.pipe(filter(['**/*', config.src_client_exclude]))
 		.pipe(coffee().on('error', gutil.log))
 		# .pipe(jshint())
 		# .pipe(jshint.reporter('default'))
-		# .pipe(concat(config.js_concat_target))
-		.pipe(gulp.dest(config.dest_app))
-		# .pipe(rename(suffix: '.min'))
-		# .pipe(uglify())
-		# .pipe(gulp.dest(config.dest_app))
+		.pipe(gulp.dest(config.dest_server_scripts))
 		.pipe livereload(server)
 
 
@@ -124,7 +135,8 @@ gulp.task 'default', (callback) ->
 
 	runSequence 'clean', [
 		# 'plugins'
-		'scripts'
+		'client_scripts'
+		'server_scripts'
 		'styles'
 		'images'
 		'views'
@@ -135,7 +147,8 @@ gulp.task 'default', (callback) ->
 
 	gulp.watch(config.src_sass, ['styles'])._watcher.on 'all', livereload
 	# gulp.watch(config.src_plugins, ['plugins'])._watcher.on 'all', livereload
-	gulp.watch(config.src_coffee, ['scripts'])._watcher.on 'all', livereload
+	gulp.watch(config.src_client_scripts, ['client_scripts'])._watcher.on 'all', livereload
+	gulp.watch([config.src_all_scripts, '!' + config.src_client_scripts], ['server_scripts'])._watcher.on 'all', livereload
 	gulp.watch(config.src_views, ['views'])._watcher.on 'all', livereload
 	gulp.watch(config.src_img, ['images'])._watcher.on 'all', livereload
 
