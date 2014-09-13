@@ -30,11 +30,8 @@
       };
       return person;
     };
-  }).controller('TriadAppCtrl', function($scope, PIXI, PersonGraphic) {
-    var i, people, person, size, x, y;
-    $scope.notifyServiceOnChange = function() {
-      return console.log('notifyServiceOnChange');
-    };
+  }).controller('TriadAppCtrl', function($scope, PIXI, PersonGraphic, $timeout) {
+    var people;
     $scope.pixiRender = function(stage, renderer) {
       var person, _i, _len, _results;
       _results = [];
@@ -46,21 +43,30 @@
       return _results;
     };
     $scope.stage = new PIXI.Stage(0x66ff99);
-    return people = (function() {
-      var _i, _results;
-      _results = [];
-      for (i = _i = 1; _i <= 35; i = ++_i) {
-        x = Math.random() * 300;
-        y = Math.random() * 150;
-        size = 20;
-        person = PersonGraphic(x, y, size);
-        person.vx = Math.random() * 0.5 - 0.25;
-        person.vy = Math.random() * 0.5 - 0.25;
-        $scope.stage.addChild(person);
-        _results.push(person);
-      }
-      return _results;
-    })();
+    $scope.config = {
+      numPeople: 35,
+      personSize: 20,
+      velocity: 0.5
+    };
+    people = [];
+    return $timeout(function() {
+      var i, person, size, x, y;
+      return people = (function() {
+        var _i, _ref, _results;
+        _results = [];
+        for (i = _i = 1, _ref = $scope.config.numPeople; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+          x = Math.random() * $scope.parentSize.width;
+          y = Math.random() * $scope.parentSize.height;
+          size = $scope.config.personSize;
+          person = PersonGraphic(x, y, size);
+          person.vx = Math.random() * $scope.config.velocity - $scope.config.velocity / 2;
+          person.vy = Math.random() * $scope.config.velocity - $scope.config.velocity / 2;
+          $scope.stage.addChild(person);
+          _results.push(person);
+        }
+        return _results;
+      })();
+    });
   });
 
 }).call(this);

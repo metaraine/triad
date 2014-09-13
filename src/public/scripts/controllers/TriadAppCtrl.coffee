@@ -33,18 +33,12 @@ angular.module('triad', [])
 		# make the person face a given point
 		person.face = (x,y)->
 			@rotation = Math.atan((@position.y - y)/(@position.x - x)) - Math.PI/2
-			# @rotation = Math.atan (@position.x - x)/(@position.y - y)
-			# @rotation = Math.atan (y - @position.y)/(x - @position.y)
-			# @rotation = Math.atan (x - @position.x)/(y - @position.y)
 
 		# return the person
 		person
 
 # controls the main application
-.controller 'TriadAppCtrl', ($scope, PIXI, PersonGraphic) ->
-
-	$scope.notifyServiceOnChange = ->
-		console.log 'notifyServiceOnChange'
+.controller 'TriadAppCtrl', ($scope, PIXI, PersonGraphic, $timeout) ->
 
 	# render function called in the animation loop
 	$scope.pixiRender = (stage, renderer)->
@@ -55,14 +49,22 @@ angular.module('triad', [])
 			person.face(0,0)
 
 	$scope.stage = new PIXI.Stage 0x66ff99
+	$scope.config =
+		numPeople: 35
+		personSize: 20
+		velocity: 0.5
 
-	# create 35 people and add them to the stage
-	people = for i in [1..35]
-		x = Math.random()*300
-		y = Math.random()*150
-		size = 20
-		person = PersonGraphic x,y,size
-		person.vx = Math.random()*0.5 - 0.25
-		person.vy = Math.random()*0.5 - 0.25
-		$scope.stage.addChild person
-		person
+	people = []
+
+	$timeout ->
+
+		# create the people and add them to the stage
+		people = for i in [1..$scope.config.numPeople]
+			x = Math.random() * $scope.parentSize.width
+			y = Math.random() * $scope.parentSize.height
+			size = $scope.config.personSize
+			person = PersonGraphic x,y,size
+			person.vx = Math.random()*$scope.config.velocity - $scope.config.velocity/2
+			person.vy = Math.random()*$scope.config.velocity - $scope.config.velocity/2
+			$scope.stage.addChild person
+			person
