@@ -5,48 +5,36 @@ angular.module("triad")
 	# template: '<canvas></canvas>',
 	restrict: "A"
 	scope: false
-	controller: postLink = ($scope, $element, $attrs, $window)->
+	controller: postLink = ($scope, $element, $attrs, $window, $timeout)->
 		self = this
+		renderer = null
 
-		# spread the canvas to the entire width
-		# ...is there better place for this?
-		# $element[0].width = $window.innerWidth * .99
-		# $element[0].height = $window.innerHeight * .99
+		@start = ->
+			renderLoop = ->
+				self.render()
+				requestAnimFrame renderLoop
 
-		renderLoop = ->
-			self.render()
+			@setRenderer()
+			@resize()
 			requestAnimFrame renderLoop
 
-		stageAttr = $parse($attrs.pixi)
-		stage = stageAttr($scope)
-		renderFunc = $scope.$eval($attrs.pixiRender)
+		@setRenderer = ->
+			switch rendererType
+				when "canvas"
+					# Had to change $element.width(), becuase it was undefined, to $element[0].width ??? Documented but not defined?
+					renderer = new PIXI.CanvasRenderer($element[0].width, $element[0].height, $element[0], transparent)
+				when "webgl"
+					# try
+					renderer = new PIXI.WebGLRenderer($element[0].width, $element[0].height, $element[0], transparent, antialias)
+					# catch e
+					# 	$scope.$emit "pixi.webgl.init.exception", e
+					# 	console.error "pixi.webgl.init.exception", e
+				else
+					renderer = PIXI.autoDetectRenderer($element[0].width, $element[0].height, $element[0], antialias, transparent)
 
-		if not stage
-			stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground or "0"))
-			stageAttr.assign $scope, stage
-
-		antialias = $scope.$eval($attrs.pixiAntialias or "false")
-		transparent = $scope.$eval($attrs.pixiTransparent or "false")
-		rendererType = $scope.$eval($attrs.pixiRenderer or "auto")
-
-		switch rendererType
-			when "canvas"
-				# Had to change $element.width(), becuase it was undefined, to $element[0].width ??? Documented but not defined?
-				renderer = new PIXI.CanvasRenderer($element[0].width, $element[0].height, $element[0], transparent)
-			when "webgl"
-				# try
-				renderer = new PIXI.WebGLRenderer($element[0].width, $element[0].height, $element[0], transparent, antialias)
-				# catch e
-				# 	$scope.$emit "pixi.webgl.init.exception", e
-				# 	console.error "pixi.webgl.init.exception", e
-			else
-				renderer = PIXI.autoDetectRenderer($element[0].width, $element[0].height, $element[0], antialias, transparent)
-
-		@render = render = (force)->
+		@render = (force)->
 			renderFunc(stage, renderer)
 			renderer.render stage
-
-		requestAnimFrame renderLoop
 
 		@getStage = ->
 			stage
@@ -57,7 +45,23 @@ angular.module("triad")
 		@getContext = ->
 			(if renderer.gl then renderer.gl else renderer.context)
 
+		@resize = ->
+			renderer.resize $element[0].width, $element[0].height
 
-# $($window).resize(function() {
-#     renderer.resize(element.width(), element.height())
-# })
+		stageAttr = $parse($attrs.pixi)
+		stage = stageAttr($scope)
+		renderFunc = $scope.$eval($attrs.pixiRender)
+
+		antialias = $scope.$eval($attrs.pixiAntialias or "false")
+		transparent = $scope.$eval($attrs.pixiTransparent or "false")
+		rendererType = $scope.$eval($attrs.pixiRenderer or "auto")
+
+		if not stage
+			stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground or "0"))
+			stageAttr.assign $scope, stage
+
+		w = angular.element($window)
+		w.bind 'resize', @resize
+
+		$timeout @start.bind(@)
+

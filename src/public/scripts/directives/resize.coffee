@@ -1,3 +1,5 @@
+# Based on http://stackoverflow.com/questions/23044338/window-resize-directive
+
 angular.module("triad")
 
 .directive "resize", ($window)->
