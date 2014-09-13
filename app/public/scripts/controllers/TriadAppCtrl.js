@@ -1,5 +1,5 @@
 (function() {
-  angular.module('triad').controller('TriadAppCtrl', function($scope, PIXI, PersonGraphic, $timeout) {
+  angular.module('triad').controller('TriadAppCtrl', function($scope, PIXI, TrianglePerson, $timeout) {
     var people;
     $scope.pixiRender = function(stage, renderer) {
       var person, _i, _len, _results;
@@ -27,7 +27,7 @@
           x = Math.random() * $scope.parentSize.width;
           y = Math.random() * $scope.parentSize.height;
           size = $scope.config.personSize;
-          person = PersonGraphic(x, y, size);
+          person = new TrianglePerson(x, y, size);
           person.vx = Math.random() * $scope.config.velocity - $scope.config.velocity / 2;
           person.vy = Math.random() * $scope.config.velocity - $scope.config.velocity / 2;
           $scope.stage.addChild(person);
