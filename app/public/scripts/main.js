@@ -1,6 +1,4 @@
 (function() {
-  angular.module('triad', []).factory('PIXI', function() {
-    return PIXI;
-  });
+  angular.module('triad', []);
 
 }).call(this);

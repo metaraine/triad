@@ -4,9 +4,11 @@
     return {
       restrict: "A",
       scope: false,
-      controller: postLink = function($scope, $element, $attrs) {
+      controller: postLink = function($scope, $element, $attrs, $window) {
         var antialias, render, renderFunc, renderLoop, renderer, rendererType, self, stage, stageAttr, transparent;
         self = this;
+        $element[0].width = $window.innerWidth * .99;
+        $element[0].height = $window.innerHeight * .99;
         renderLoop = function() {
           self.render();
           return requestAnimFrame(renderLoop);
@@ -15,7 +17,6 @@
         stage = stageAttr($scope);
         renderFunc = $scope.$eval($attrs.pixiRender);
         if (!stage) {
-          console.log('new stage');
           stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground || "0"));
           stageAttr.assign($scope, stage);
         }

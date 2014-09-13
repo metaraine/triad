@@ -5,8 +5,13 @@ angular.module("triad")
 	# template: '<canvas></canvas>',
 	restrict: "A"
 	scope: false
-	controller: postLink = ($scope, $element, $attrs)->
+	controller: postLink = ($scope, $element, $attrs, $window)->
 		self = this
+
+		# spread the canvas to the entire width
+		# ...is there better place for this?
+		$element[0].width = $window.innerWidth * .99
+		$element[0].height = $window.innerHeight * .99
 
 		renderLoop = ->
 			self.render()
@@ -17,9 +22,9 @@ angular.module("triad")
 		renderFunc = $scope.$eval($attrs.pixiRender)
 
 		if not stage
-			console.log 'new stage'
 			stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground or "0"))
 			stageAttr.assign $scope, stage
+
 		antialias = $scope.$eval($attrs.pixiAntialias or "false")
 		transparent = $scope.$eval($attrs.pixiTransparent or "false")
 		rendererType = $scope.$eval($attrs.pixiRenderer or "auto")
