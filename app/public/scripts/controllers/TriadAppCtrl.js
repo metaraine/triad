@@ -32,6 +32,9 @@
     };
   }).controller('TriadAppCtrl', function($scope, PIXI, PersonGraphic) {
     var i, people, person, size, x, y;
+    $scope.notifyServiceOnChange = function() {
+      return console.log('notifyServiceOnChange');
+    };
     $scope.pixiRender = function(stage, renderer) {
       var person, _i, _len, _results;
       _results = [];

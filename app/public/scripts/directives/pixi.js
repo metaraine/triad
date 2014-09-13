@@ -7,8 +7,6 @@
       controller: postLink = function($scope, $element, $attrs, $window) {
         var antialias, render, renderFunc, renderLoop, renderer, rendererType, self, stage, stageAttr, transparent;
         self = this;
-        $element[0].width = $window.innerWidth * .99;
-        $element[0].height = $window.innerHeight * .99;
         renderLoop = function() {
           self.render();
           return requestAnimFrame(renderLoop);

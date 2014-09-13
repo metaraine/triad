@@ -43,6 +43,9 @@ angular.module('triad', [])
 # controls the main application
 .controller 'TriadAppCtrl', ($scope, PIXI, PersonGraphic) ->
 
+	$scope.notifyServiceOnChange = ->
+		console.log 'notifyServiceOnChange'
+
 	# render function called in the animation loop
 	$scope.pixiRender = (stage, renderer)->
 

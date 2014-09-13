@@ -10,8 +10,8 @@ angular.module("triad")
 
 		# spread the canvas to the entire width
 		# ...is there better place for this?
-		$element[0].width = $window.innerWidth * .99
-		$element[0].height = $window.innerHeight * .99
+		# $element[0].width = $window.innerWidth * .99
+		# $element[0].height = $window.innerHeight * .99
 
 		renderLoop = ->
 			self.render()
