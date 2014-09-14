@@ -1,2 +1,1 @@
-angular.module('triad')
-.factory 'PIXI', -> PIXI
+angular.module('triad').factory 'PIXI', -> window.PIXI

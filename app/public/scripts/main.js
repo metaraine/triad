@@ -4,28 +4,27 @@
 }).call(this);
 
 (function() {
-  angular.module('triad').controller('TriadAppCtrl', ["$scope", "PIXI", "TrianglePerson", "$timeout", function($scope, PIXI, TrianglePerson, $timeout) {
+  angular.module('triad').controller('TriadAppCtrl', ["$scope", "PIXI", "TrianglePerson", "$timeout", "_", function($scope, PIXI, TrianglePerson, $timeout, _) {
     var people;
     $scope.pixiRender = function(stage, renderer) {
       var person, _i, _len, _results;
       _results = [];
       for (_i = 0, _len = people.length; _i < _len; _i++) {
         person = people[_i];
-        person.animate();
-        _results.push(person.face(0, 0));
+        _results.push(person.animate());
       }
       return _results;
     };
     $scope.stage = new PIXI.Stage(0x66ff99);
     $scope.config = {
-      numPeople: 35,
+      numPeople: 3,
       personSize: 20,
       velocity: 0.5
     };
     people = [];
     return $timeout(function() {
-      var i, person, size, x, y;
-      return people = (function() {
+      var i, notself, person, size, x, y, _i, _len, _results;
+      people = (function() {
         var _i, _ref, _results;
         _results = [];
         for (i = _i = 1, _ref = $scope.config.numPeople; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
@@ -33,13 +32,20 @@
           y = Math.random() * $scope.parentSize.height;
           size = $scope.config.personSize;
           person = new TrianglePerson(x, y, size);
-          person.vx = Math.random() * $scope.config.velocity - $scope.config.velocity / 2;
-          person.vy = Math.random() * $scope.config.velocity - $scope.config.velocity / 2;
           $scope.stage.addChild(person);
           _results.push(person);
         }
         return _results;
       })();
+      _results = [];
+      for (_i = 0, _len = people.length; _i < _len; _i++) {
+        person = people[_i];
+        notself = people.filter(function(p) {
+          return p !== person;
+        });
+        _results.push(person.targets = [_.sample(notself), _.sample(notself)]);
+      }
+      return _results;
     });
   }]);
 
@@ -141,34 +147,44 @@
   angular.module('triad').factory('TrianglePerson', function() {
     var TrianglePerson;
     TrianglePerson = (function(_super) {
+      var midpoint;
+
       __extends(TrianglePerson, _super);
+
+      midpoint = function(p1, p2) {
+        return {
+          x: (p1.x + p2.x) / 2,
+          y: (p1.y + p2.y) / 2
+        };
+      };
 
       function TrianglePerson(x, y, size, rotation) {
         TrianglePerson.__super__.constructor.call(this);
         this.beginFill(0x6699ff);
         this.moveTo(0, -size / 2);
-        this.lineTo(size / 2, size / 2);
-        this.lineTo(-size / 2, size / 2);
+        this.lineTo(size / 3, size / 2);
+        this.lineTo(-size / 3, size / 2);
         this.lineTo(0, -size / 2);
         this.endFill();
         this.position.x = x || 0;
         this.position.y = y || 0;
         this.vx = 0;
         this.vy = 0;
-        this.ax = 0;
-        this.ay = 0;
         this.rotation = rotation || 0;
       }
 
       TrianglePerson.prototype.animate = function() {
+        var mid;
         this.x += this.vx;
         this.y += this.vy;
-        this.vx += this.ax;
-        return this.vy += this.ay;
+        if (this.targets && this.targets.length === 2) {
+          mid = midpoint(this.targets[0], this.targets[1]);
+          return this.face(mid.x, mid.y);
+        }
       };
 
       TrianglePerson.prototype.face = function(x, y) {
-        return this.rotation = Math.atan((this.position.y - y) / (this.position.x - x)) - Math.PI / 2;
+        return this.rotation = -Math.atan((this.position.y - y) / (this.position.x - x)) - Math.PI / 2;
       };
 
       return TrianglePerson;
@@ -181,7 +197,14 @@
 
 (function() {
   angular.module('triad').factory('PIXI', function() {
-    return PIXI;
+    return window.PIXI;
+  });
+
+}).call(this);
+
+(function() {
+  angular.module('triad').factory('_', function() {
+    return window._;
   });
 
 }).call(this);
