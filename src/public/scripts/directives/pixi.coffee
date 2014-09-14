@@ -5,7 +5,7 @@ angular.module("triad")
 	# template: '<canvas></canvas>',
 	restrict: "A"
 	scope: false
-	controller: ($scope, $element, $attrs, $window, $timeout, PIXI)->
+	controller: ($scope, $element, $attrs, $timeout, PIXI)->
 		self = this
 		renderer = null
 
@@ -15,7 +15,10 @@ angular.module("triad")
 				requestAnimFrame renderLoop
 
 			@setRenderer()
-			@resize()
+
+			$attrs.$observe 'width', @resize
+			$attrs.$observe 'height', @resize
+
 			requestAnimFrame renderLoop
 
 		@setRenderer = ->
@@ -46,7 +49,7 @@ angular.module("triad")
 			(if renderer.gl then renderer.gl else renderer.context)
 
 		@resize = ->
-			renderer.resize $element[0].width, $element[0].height
+			renderer.resize $attrs.width, $attrs.height
 
 		stageAttr = $parse($attrs.pixi)
 		stage = stageAttr($scope)
@@ -59,8 +62,5 @@ angular.module("triad")
 		if not stage
 			stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground or "0"))
 			stageAttr.assign $scope, stage
-
-		w = angular.element($window)
-		w.bind 'resize', @resize
 
 		$timeout @start.bind(@)

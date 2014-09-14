@@ -50,8 +50,8 @@
     return {
       restrict: "A",
       scope: false,
-      controller: ["$scope", "$element", "$attrs", "$window", "$timeout", "PIXI", function($scope, $element, $attrs, $window, $timeout, PIXI) {
-        var antialias, renderFunc, renderer, rendererType, self, stage, stageAttr, transparent, w;
+      controller: ["$scope", "$element", "$attrs", "$timeout", "PIXI", function($scope, $element, $attrs, $timeout, PIXI) {
+        var antialias, renderFunc, renderer, rendererType, self, stage, stageAttr, transparent;
         self = this;
         renderer = null;
         this.start = function() {
@@ -61,7 +61,8 @@
             return requestAnimFrame(renderLoop);
           };
           this.setRenderer();
-          this.resize();
+          $attrs.$observe('width', this.resize);
+          $attrs.$observe('height', this.resize);
           return requestAnimFrame(renderLoop);
         };
         this.setRenderer = function() {
@@ -92,7 +93,7 @@
           }
         };
         this.resize = function() {
-          return renderer.resize($element[0].width, $element[0].height);
+          return renderer.resize($attrs.width, $attrs.height);
         };
         stageAttr = $parse($attrs.pixi);
         stage = stageAttr($scope);
@@ -104,8 +105,6 @@
           stage = new PIXI.Stage($scope.$eval($attrs.pixiBackground || "0"));
           stageAttr.assign($scope, stage);
         }
-        w = angular.element($window);
-        w.bind('resize', this.resize);
         return $timeout(this.start.bind(this));
       }]
     };
