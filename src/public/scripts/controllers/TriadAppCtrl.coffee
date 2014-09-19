@@ -12,9 +12,9 @@ angular.module('triad')
 
 	$scope.stage = new PIXI.Stage 0x66ff99
 	$scope.config =
-		numPeople: 3
 		personSize: 20
-		velocity: 0.5
+		numPeople: 4
+		velocity: 2
 
 	people = []
 
@@ -26,18 +26,18 @@ angular.module('triad')
 			y = Math.random() * $scope.parentSize.height
 			size = $scope.config.personSize
 			person = new TrianglePerson x,y,size
-			# person.vx = Math.random()*$scope.config.velocity - $scope.config.velocity/2
-			# person.vy = Math.random()*$scope.config.velocity - $scope.config.velocity/2
+			person.velocity = $scope.config.velocity
 			$scope.stage.addChild person
 			person
 
 		# have each person follow two random others
 		for person in people
 
-			notself = people.filter (p)->
-				p isnt person
+			notSelf = people.filter (p)-> p isnt person
+			firstTarget = _.sample(notSelf)
+			notSelfOrFirst = notSelf.filter (p)-> p isnt firstTarget
+			secondTarget = _.sample(notSelfOrFirst)
 
-			person.targets = [
-				_.sample(notself),
-				_.sample(notself)
-			]
+			person.targets = [firstTarget, secondTarget]
+
+			person.draw()

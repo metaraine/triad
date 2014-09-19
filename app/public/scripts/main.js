@@ -17,13 +17,13 @@
     };
     $scope.stage = new PIXI.Stage(0x66ff99);
     $scope.config = {
-      numPeople: 3,
       personSize: 20,
-      velocity: 0.5
+      numPeople: 4,
+      velocity: 2
     };
     people = [];
     return $timeout(function() {
-      var i, notself, person, size, x, y, _i, _len, _results;
+      var firstTarget, i, notSelf, notSelfOrFirst, person, secondTarget, size, x, y, _i, _len, _results;
       people = (function() {
         var _i, _ref, _results;
         _results = [];
@@ -32,6 +32,7 @@
           y = Math.random() * $scope.parentSize.height;
           size = $scope.config.personSize;
           person = new TrianglePerson(x, y, size);
+          person.velocity = $scope.config.velocity;
           $scope.stage.addChild(person);
           _results.push(person);
         }
@@ -40,10 +41,16 @@
       _results = [];
       for (_i = 0, _len = people.length; _i < _len; _i++) {
         person = people[_i];
-        notself = people.filter(function(p) {
+        notSelf = people.filter(function(p) {
           return p !== person;
         });
-        _results.push(person.targets = [_.sample(notself), _.sample(notself)]);
+        firstTarget = _.sample(notSelf);
+        notSelfOrFirst = notSelf.filter(function(p) {
+          return p !== firstTarget;
+        });
+        secondTarget = _.sample(notSelfOrFirst);
+        person.targets = [firstTarget, secondTarget];
+        _results.push(person.draw());
       }
       return _results;
     });
@@ -147,7 +154,7 @@
   angular.module('triad').factory('TrianglePerson', function() {
     var TrianglePerson;
     TrianglePerson = (function(_super) {
-      var midpoint;
+      var midpoint, vertices;
 
       __extends(TrianglePerson, _super);
 
@@ -158,33 +165,69 @@
         };
       };
 
+      vertices = function(a, b) {
+        var c60, dx, dy, nc60, ns60, s60;
+        dx = a.x - b.x;
+        dy = a.y - b.y;
+        s60 = Math.sin(Math.PI / 3);
+        c60 = Math.cos(Math.PI / 3);
+        ns60 = Math.sin(-Math.PI / 3);
+        nc60 = Math.cos(-Math.PI / 3);
+        return [
+          {
+            x: c60 * dx - s60 * dy + b.x,
+            y: s60 * dx + c60 * dy + b.y
+          }, {
+            x: nc60 * dx - ns60 * dy + b.x,
+            y: ns60 * dx + nc60 * dy + b.y
+          }
+        ];
+      };
+
       function TrianglePerson(x, y, size, rotation) {
         TrianglePerson.__super__.constructor.call(this);
-        this.beginFill(0x6699ff);
-        this.moveTo(0, -size / 2);
-        this.lineTo(size / 3, size / 2);
-        this.lineTo(-size / 3, size / 2);
-        this.lineTo(0, -size / 2);
-        this.endFill();
-        this.position.x = x || 0;
-        this.position.y = y || 0;
+        this.size = size;
+        this.x = x || 0;
+        this.y = y || 0;
         this.vx = 0;
         this.vy = 0;
         this.rotation = rotation || 0;
       }
 
+      TrianglePerson.prototype.draw = function() {
+        this.beginFill(0x6699ff);
+        this.moveTo(0, -this.size / 3);
+        this.lineTo(this.size, 0);
+        this.lineTo(0, this.size / 3);
+        this.lineTo(0, -this.size / 3);
+        return this.endFill();
+      };
+
       TrianglePerson.prototype.animate = function() {
-        var mid;
-        this.x += this.vx;
-        this.y += this.vy;
+        var closestDistance, dx, dy, mid, moveAngle, roughDistances, targetVertex, verts;
         if (this.targets && this.targets.length === 2) {
           mid = midpoint(this.targets[0], this.targets[1]);
-          return this.face(mid.x, mid.y);
+          this.face(mid.x, mid.y);
+          verts = vertices(this.targets[0], this.targets[1]);
+          roughDistances = verts.map(this.roughDistance.bind(this));
+          closestDistance = Math.min.apply(null, roughDistances);
+          targetVertex = verts[roughDistances.indexOf(closestDistance)];
+          moveAngle = -Math.atan2(targetVertex.y - this.y, targetVertex.x - this.x);
+          dx = this.velocity * Math.cos(moveAngle);
+          dy = -this.velocity * Math.sin(moveAngle);
+          if (Math.sqrt(closestDistance) > 2 * this.velocity) {
+            this.x += dx;
+            return this.y += dy;
+          }
         }
       };
 
       TrianglePerson.prototype.face = function(x, y) {
-        return this.rotation = -Math.atan((this.position.y - y) / (this.position.x - x)) - Math.PI / 2;
+        return this.rotation = -Math.atan2(this.y - y, x - this.x);
+      };
+
+      TrianglePerson.prototype.roughDistance = function(p) {
+        return Math.pow(p.x - this.x, 2) + Math.pow(p.y - this.y, 2);
       };
 
       return TrianglePerson;
